@@ -17,8 +17,8 @@ const COORDINATE_FILE = "./coordinates.json";
 const OUT_FILE = "./out/coordinates_geo";
 
 // Function to generate a random polygon
-async function generateRandomPolygon() {
-  const points = await utils.readJsonFile(COORDINATE_FILE);
+async function generateRandomPolygon(filePath) {
+  const points = await utils.readJsonFile(filePath || COORDINATE_FILE);
 
   // Return a polygon using turf.js
   return turf.polygon([points]);
@@ -47,9 +47,9 @@ function findCentersInsidePolygon(polygon, radius) {
   return geoHashes;
 }
 
-export const getLocationGeo = async () => {
+export const getLocationGeo = async (filePath) => {
   // Example usage
-  const polygon = await generateRandomPolygon();
+  const polygon = await generateRandomPolygon(filePath);
   const geoHashes = [...new Set(findCentersInsidePolygon(polygon, RADIUS))];
 
   utils.writeToFile(
@@ -58,4 +58,6 @@ export const getLocationGeo = async () => {
   );
 
   await utils.writeToFile(`${OUT_FILE}.json`, JSON.stringify(geoHashes));
+
+  return `${OUT_FILE}.json`
 };

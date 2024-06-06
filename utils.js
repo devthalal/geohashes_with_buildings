@@ -64,6 +64,22 @@ function getBbox(geohash) {
   return [minLat, minLng, maxLat, maxLng];
 }
 
+async function writeNextLevels(geoFile, geohashes) {
+  /**
+   * Generate the 32 sub-geohashes of the given geohashes.
+   */
+  const base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
+  const nextGeohashes = geohashes.reduce(
+    (acc, geohash) =>
+      geohash
+        ? acc.concat(base32.split("").map((char) => geohash + char))
+        : acc,
+    []
+  );
+
+  await writeToFile(geoFile, JSON.stringify(nextGeohashes));
+}
+
 export {
   writeToFile,
   appendToFile,
@@ -74,4 +90,5 @@ export {
   getFormattedTimeStamp,
   getBbox,
   readFileData,
+  writeNextLevels,
 };

@@ -118,20 +118,23 @@ export const findGeohashesWithBuildings = async (opts) => {
   try {
     await utils.createDir(OUT_DIR);
 
-    const { lastProcessedGeo, retryGeohashes } = opts || {};
+    const { lastProcessedGeo, retryGeohashes, geoFile } = opts || {};
 
-    let curGeohashes = retryGeohashes || (await utils.readJsonFile(GEO_FILE));
-    LAST.geo = curGeohashes[curGeohashes.length - 1];
+    let geoToProcess = retryGeohashes?.length
+      ? retryGeohashes
+      : await utils.readJsonFile(geoFile || GEO_FILE);
+
+    LAST.geo = geoToProcess[geoToProcess.length - 1];
 
     if (lastProcessedGeo) {
       const index = array.indexOf(element);
       if (index === -1 || index === array.length - 1) {
         throw new Error("Last processed geo not found in geo file");
       }
-      curGeohashes = array.slice(index);
+      geoToProcess = array.slice(index);
     }
 
-    await processGeohashes(curGeohashes);
+    await processGeohashes(geoToProcess);
 
     let errors = await utils.readFileData(FILES.err);
 
