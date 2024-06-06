@@ -30,9 +30,9 @@ export const generateFromExistingGeohashes = async (filePath) => {
     // Read from existing geohashes with building and process with next level
 
     console.time("Generating next level geohashes process time => ");
-    let geoFile = "./out/existing_geohashes.json";
+    let geoFile = filePath.replace(".txt", ".json");
     const L5 = await utils.readFileData(filePath);
-    const L6 = await utils.writeNextLevels(geoFile, L5.split("\n"));
+    await utils.writeNextLevels(geoFile, L5.split("\n"));
     console.timeEnd("Generating next level geohashes process time => ");
 
     console.time("filterGeoWithBuildings process time => ");
@@ -57,6 +57,21 @@ export const processWithExistingGeohashes = async (filePath) => {
     await findGeohashesWithBuildings({
       retryGeohashes: L5,
     });
+    console.timeEnd("filterGeoWithBuildings process time => ");
+  } catch (error) {
+    console.log("MAIN ERR => ", error);
+  }
+};
+
+export const retryFromGeohash = async ({ geoFile, lastProcessedGeo }) => {
+  try {
+    /**
+     * Filter all the geohashes based on overpass-api buildings data
+     * Keep  files out/geo_ data,err to keep the progress
+     * Save the filtered geohashes in out/geo_filtered*
+     */
+    console.time("filterGeoWithBuildings process time => ");
+    await findGeohashesWithBuildings({ geoFile, lastProcessedGeo });
     console.timeEnd("filterGeoWithBuildings process time => ");
   } catch (error) {
     console.log("MAIN ERR => ", error);

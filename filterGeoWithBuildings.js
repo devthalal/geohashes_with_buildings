@@ -4,8 +4,8 @@ import * as utils from "./utils.js";
 const LAST = {};
 const MAX_RETRIES = 3;
 const API_BATCH = 20;
+let GEO_FILE = `./out/coordinates_geo.json`;
 const OUT_DIR = `./out/${utils.getFormattedTimeStamp()}`;
-const GEO_FILE = `./out/coordinates_geo.json`;
 const FILES = {
   last: `${OUT_DIR}/geo_last_.txt`,
   out: `${OUT_DIR}/geo_data_.txt`,
@@ -84,6 +84,7 @@ async function processGeohashes(geohashes) {
     const batch = geohashes.slice(i, i + API_BATCH);
     const lastProcessedGeo = batch[batch.length - 1];
     const promises = batch.map(async (geohash) => {
+      if (!geohash) return true;
       const bbox = utils.getBbox(geohash);
       try {
         const hasData = await hasBuildings(bbox);
@@ -97,7 +98,9 @@ async function processGeohashes(geohashes) {
 
     await Promise.all(promises);
 
-    await utils.appendToFile(FILES.out, logGeohash.join("\n") + "\n");
+    if (logGeohash.length) {
+      await utils.appendToFile(FILES.out, logGeohash.join("\n") + "\n");
+    }
 
     LAST.processed = lastProcessedGeo;
     await utils.writeToFile(FILES.last, lastProcessedGeo);
@@ -120,18 +123,20 @@ export const findGeohashesWithBuildings = async (opts) => {
 
     const { lastProcessedGeo, retryGeohashes, geoFile } = opts || {};
 
+    if (geoFile) GEO_FILE = geoFile;
+
     let geoToProcess = retryGeohashes?.length
       ? retryGeohashes
-      : await utils.readJsonFile(geoFile || GEO_FILE);
+      : await utils.readJsonFile(GEO_FILE);
 
     LAST.geo = geoToProcess[geoToProcess.length - 1];
 
     if (lastProcessedGeo) {
-      const index = array.indexOf(element);
-      if (index === -1 || index === array.length - 1) {
+      const index = geoToProcess.indexOf(lastProcessedGeo);
+      if (index === -1 || index === geoToProcess.length - 1) {
         throw new Error("Last processed geo not found in geo file");
       }
-      geoToProcess = array.slice(index);
+      geoToProcess = geoToProcess.slice(index);
     }
 
     await processGeohashes(geoToProcess);

@@ -69,15 +69,15 @@ async function writeNextLevels(geoFile, geohashes) {
    * Generate the 32 sub-geohashes of the given geohashes.
    */
   const base32 = "0123456789bcdefghjkmnpqrstuvwxyz";
-  const nextGeohashes = geohashes.reduce(
-    (acc, geohash) =>
-      geohash
-        ? acc.concat(base32.split("").map((char) => geohash + char))
-        : acc,
-    []
-  );
+  let nextGeohashes = [];
+  geohashes.forEach((geohash) => {
+    if (!geohash) return;
+    nextGeohashes = nextGeohashes.concat(
+      base32.split("").map((char) => geohash + char)
+    );
+  });
 
-  await writeToFile(geoFile, JSON.stringify(nextGeohashes));
+  await writeToFile(geoFile, JSON.stringify(nextGeohashes, null, 2));
 }
 
 export {
