@@ -57,7 +57,10 @@ export const getLocationGeo = async (filePath) => {
     geoHashes.reduce((acc, c) => (acc += `${c}\n`), "")
   );
 
-  await utils.writeToFile(`${OUT_FILE}.json`, JSON.stringify(geoHashes));
+  await utils.writeToFile(
+    `${OUT_FILE}.json`,
+    JSON.stringify(geoHashes, null, 2)
+  );
 
-  return `${OUT_FILE}.json`
+  return `${OUT_FILE}.json`;
 };

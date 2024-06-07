@@ -30,7 +30,7 @@ async function appendToFile(file, data) {
 }
 
 async function renameFile(file, newFile) {
-  await fsp.rename(file, renameFile);
+  await fsp.rename(file, newFile);
 }
 
 async function createDir(dir) {

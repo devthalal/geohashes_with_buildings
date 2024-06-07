@@ -3,6 +3,7 @@ import * as utils from "./utils.js";
 
 const LAST = {};
 const MAX_RETRIES = 3;
+const MIN_BUILDING_COUNT = 1;
 const API_BATCH = 20;
 let GEO_FILE = `./out/coordinates_geo.json`;
 const OUT_DIR = `./out/${utils.getFormattedTimeStamp()}`;
@@ -70,7 +71,7 @@ async function hasBuildings(bbox) {
     if (!ele) return false;
 
     const total = parseInt(ele[0].tags?.total || 0);
-    return total > 0;
+    return total > MIN_BUILDING_COUNT - 1;
   });
 }
 
@@ -145,7 +146,8 @@ export const findGeohashesWithBuildings = async (opts) => {
 
     if (errors?.length) {
       const erroredGeohases = errors.split("\n").reduce((acc, v) => {
-        if (v?.geohash) acc.push(geohash);
+        const { geohash } = v ? JSON.parse(v) : {};
+        if (geohash) acc.push(geohash);
         return acc;
       }, []);
 
