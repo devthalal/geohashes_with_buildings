@@ -10,7 +10,8 @@ async function readFileData(file) {
     const data = await fsp.readFile(file, "utf8");
     return data;
   } catch (error) {
-    console.log({ error });
+    if (error.code === "ENOENT") throw "!!! No file found !!!";
+    else console.log({ error });
     return "";
   }
 }

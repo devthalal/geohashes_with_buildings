@@ -158,6 +158,8 @@ export const findGeohashesWithBuildings = async (opts) => {
         `Retries since failed geo found! [Retry: ${retryOnErrors}/${MAX_RETRIES}]`
       );
       utils.renameFile(FILES.err, `${OUT_DIR}/geo_err_${retryOnErrors}.txt`);
+      await utils.writeToFile(FILES.err, "");
+
       retryOnErrors++;
       await findGeohashesWithBuildings({ retryGeohashes: erroredGeohases });
     }
